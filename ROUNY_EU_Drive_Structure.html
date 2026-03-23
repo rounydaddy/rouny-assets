@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROUNY EU · Google Drive 文件架构</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #1C3454;
+  --navy2:  #162840;
+  --navy3:  #0d1e2e;
+  --pine:   #5F8575;
+  --sky:    #A0BECD;
+  --orange: #EB974E;
+  --warm:   #E6E1DC;
+  --cream:  #F5F1EB;
+  --white:  #ffffff;
+
+  /* folder type colors */
+  --c-brand:   #EB974E;
+  --c-product: #A0BECD;
+  --c-market:  #5F8575;
+  --c-content: #b09ec9;
+  --c-ops:     #e0857a;
+  --c-ai:      #78BEAF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--navy3);
+  color: var(--white);
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.page-header {
+  background: var(--navy2);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 40px 60px 36px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.ph-left .eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 3px;
+  color: var(--orange); text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.ph-left h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px; line-height: 1.1;
+}
+.ph-left h1 em { color: var(--orange); font-style: italic; }
+.ph-left .subtitle {
+  margin-top: 8px; font-size: 13px;
+  color: rgba(255,255,255,0.45); font-weight: 300;
+}
+.ph-stats {
+  display: flex; gap: 24px;
+}
+.stat {
+  text-align: right;
+}
+.stat .num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px; color: var(--orange);
+}
+.stat .lbl {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,0.3); letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── LEGEND ── */
+.legend-bar {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 60px;
+  display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,0.5);
+}
+.legend-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.legend-sep { color: rgba(255,255,255,0.1); }
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  min-height: calc(100vh - 160px);
+}
+
+/* ── LEFT: TREE ── */
+.tree-panel {
+  background: var(--navy2);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  padding: 28px 0 40px;
+  overflow-y: auto;
+  position: sticky; top: 0; height: calc(100vh - 130px);
+}
+
+.tree-search {
+  margin: 0 20px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.tree-search input {
+  background: none; border: none; outline: none;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  color: var(--white); width: 100%;
+}
+.tree-search input::placeholder { color: rgba(255,255,255,0.25); }
+
+.tree-root {
+  padding: 0 16px 0 20px;
+}
+
+/* Folder items */
+.f-item {
+  cursor: pointer;
+  user-select: none;
+}
+
+.f-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px; border-radius: 6px;
+  transition: background 0.15s;
+  white-space: nowrap; overflow: hidden;
+}
+.f-row:hover { background: rgba(255,255,255,0.06); }
+.f-row.active { background: rgba(235,151,78,0.12); }
+
+.f-indent { width: 16px; flex-shrink: 0; }
+.f-toggle {
+  width: 14px; text-align: center; flex-shrink: 0;
+  font-size: 9px; color: rgba(255,255,255,0.3);
+  transition: transform 0.2s;
+}
+.f-toggle.open { transform: rotate(90deg); }
+
+.f-icon { font-size: 13px; flex-shrink: 0; }
+.f-name {
+  font-size: 12px; font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,0.75);
+  overflow: hidden; text-overflow: ellipsis;
+}
+.f-name.folder { color: rgba(255,255,255,0.9); font-weight: 500; }
+.f-count {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 9px; font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  padding: 1px 6px; border-radius: 10px;
+}
+.f-tag {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 9px; font-family: 'DM Mono', monospace;
+  padding: 1px 6px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+.f-children { display: none; }
+.f-children.open { display: block; }
+
+/* color tags */
+.tag-brand   { background: rgba(235,151,78,0.2);  color: var(--c-brand); }
+.tag-product { background: rgba(160,190,205,0.2); color: var(--c-product); }
+.tag-market  { background: rgba(95,133,117,0.2);  color: var(--c-market); }
+.tag-content { background: rgba(176,158,201,0.2); color: var(--c-content); }
+.tag-ops     { background: rgba(224,133,122,0.2); color: var(--c-ops); }
+.tag-ai      { background: rgba(120,190,175,0.2); color: var(--c-ai); }
+
+/* color left-border on folder rows */
+.fb-brand   { border-left: 2px solid var(--c-brand); }
+.fb-product { border-left: 2px solid var(--c-product); }
+.fb-market  { border-left: 2px solid var(--c-market); }
+.fb-content { border-left: 2px solid var(--c-content); }
+.fb-ops     { border-left: 2px solid var(--c-ops); }
+.fb-ai      { border-left: 2px solid var(--c-ai); }
+
+/* ── RIGHT: DETAIL PANEL ── */
+.detail-panel {
+  padding: 36px 50px;
+  overflow-y: auto;
+  max-height: calc(100vh - 130px);
+}
+
+.detail-panel h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px; margin-bottom: 6px;
+}
+.detail-panel .detail-path {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--orange); margin-bottom: 24px;
+}
+.detail-panel .detail-desc {
+  font-size: 14px; color: rgba(255,255,255,0.6);
+  max-width: 660px; line-height: 1.8; margin-bottom: 32px;
+  border-left: 2px solid rgba(255,255,255,0.1);
+  padding-left: 16px;
+}
+
+/* File table */
+.file-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+.file-table thead tr {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.file-table th {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.3); font-weight: 400;
+  padding: 0 0 12px; text-align: left;
+}
+.file-table td {
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: top;
+}
+.file-table tr:last-child td { border-bottom: none; }
+.file-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.td-icon { width: 36px; }
+.td-name {
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  color: var(--white); padding-right: 20px;
+}
+.td-ext {
+  font-size: 10px; color: rgba(255,255,255,0.3);
+  font-family: 'DM Mono', monospace;
+}
+.td-owner { width: 100px; font-size: 12px; color: rgba(255,255,255,0.4); }
+.td-req { width: 80px; text-align: center; }
+.td-req .req-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+.req-must  { background: var(--orange); }
+.req-high  { background: var(--sky); }
+.req-later { background: rgba(255,255,255,0.2); }
+.td-desc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+
+.req-legend {
+  display: flex; gap: 20px; margin-bottom: 20px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,0.4);
+}
+.req-legend-item { display: flex; align-items: center; gap: 6px; }
+
+/* Section header inside detail */
+.file-section {
+  margin-top: 32px; margin-bottom: 12px;
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Empty state */
+.empty-detail {
+  padding: 60px 0; text-align: center;
+  color: rgba(255,255,255,0.2); font-size: 14px;
+}
+.empty-detail .em-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .tree-panel { position: static; height: auto; max-height: 400px; }
+  .detail-panel { max-height: none; }
+  .page-header { padding: 28px 24px; flex-direction: column; gap: 20px; align-items: flex-start; }
+  .legend-bar { padding: 14px 24px; }
+}
+
+/* ════════════════════════════════════════════
+   WHITE THEME OVERRIDES
+════════════════════════════════════════════ */
+body { background: #F7F4EE !important; color: var(--navy) !important; }
+
+/* Page header */
+.page-header {
+  background: #FFFFFF !important;
+  border-bottom-color: rgba(28,52,84,0.1) !important;
+}
+.ph-left h1 { color: var(--navy) !important; }
+.ph-left .subtitle { color: rgba(28,52,84,0.45) !important; }
+.stat .lbl { color: rgba(28,52,84,0.32) !important; }
+
+/* Legend bar */
+.legend-bar {
+  background: #FAFAF7 !important;
+  border-bottom-color: rgba(28,52,84,0.07) !important;
+}
+.legend-item { color: rgba(28,52,84,0.52) !important; }
+.legend-sep { color: rgba(28,52,84,0.15) !important; }
+/* LATER dot override on light bg */
+.req-later { background: rgba(28,52,84,0.2) !important; }
+
+/* Tree panel */
+.tree-panel {
+  background: #FFFFFF !important;
+  border-right-color: rgba(28,52,84,0.08) !important;
+}
+.tree-search {
+  background: #F7F4EE !important;
+  border-color: rgba(28,52,84,0.1) !important;
+}
+.tree-search > span { color: rgba(28,52,84,0.3) !important; }
+.tree-search input { color: var(--navy) !important; }
+.tree-search input::placeholder { color: rgba(28,52,84,0.25) !important; }
+.f-row:hover { background: rgba(28,52,84,0.04) !important; }
+.f-row.active { background: rgba(235,151,78,0.1) !important; }
+.f-toggle { color: rgba(28,52,84,0.3) !important; }
+.f-name { color: rgba(28,52,84,0.72) !important; }
+.f-name.folder { color: rgba(28,52,84,0.9) !important; font-weight: 600 !important; }
+.f-count {
+  color: rgba(28,52,84,0.22) !important;
+  background: rgba(28,52,84,0.05) !important;
+}
+
+/* Detail panel */
+.detail-panel { background: #F7F4EE !important; }
+.detail-panel h2 { color: var(--navy) !important; }
+.detail-desc {
+  color: rgba(28,52,84,0.62) !important;
+  border-left-color: rgba(28,52,84,0.12) !important;
+}
+
+/* File table */
+.file-table thead tr { border-bottom-color: rgba(28,52,84,0.1) !important; }
+.file-table th { color: rgba(28,52,84,0.35) !important; }
+.file-table td { border-bottom-color: rgba(28,52,84,0.05) !important; }
+.file-table tr:hover td { background: rgba(28,52,84,0.02) !important; }
+.td-name { color: var(--navy) !important; }
+.td-ext { color: rgba(28,52,84,0.3) !important; }
+.td-owner { color: rgba(28,52,84,0.42) !important; }
+.td-desc { color: rgba(28,52,84,0.52) !important; }
+.req-legend { color: rgba(28,52,84,0.4) !important; }
+.file-section {
+  color: rgba(28,52,84,0.28) !important;
+  border-bottom-color: rgba(28,52,84,0.07) !important;
+}
+.empty-detail { color: rgba(28,52,84,0.2) !important; }
+
+/* Subfolder preview cards in detail */
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="ph-left">
+    <div class="eyebrow">Project · ROUNY EU — Google Drive 文件架构 V1.0</div>
+    <h1>数字资产<em>目录结构</em>与文件清单</h1>
+    <div class="subtitle">点击左侧文件夹查看该目录下的完整文件清单与交付标准</div>
+  </div>
+  <div class="ph-stats">
+    <div class="stat"><div class="num" id="totalFolders">—</div><div class="lbl">文件夹</div></div>
+    <div class="stat"><div class="num" id="totalFiles">—</div><div class="lbl">核心文件</div></div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend-bar">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-brand)"></div>品牌战略</div>
+  <div class="legend-sep">·</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-product)"></div>产品资产</div>
+  <div class="legend-sep">·</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-market)"></div>市场研究</div>
+  <div class="legend-sep">·</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-content)"></div>内容营销</div>
+  <div class="legend-sep">·</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-ops)"></div>电商运营</div>
+  <div class="legend-sep">·</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c-ai)"></div>AI 资产库</div>
+  <div class="legend-sep">·</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--orange); border-radius:50%"></div>必须 MUST</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--sky); border-radius:50%"></div>重要 HIGH</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.3); border-radius:50%"></div>后续 LATER</div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT TREE -->
+  <div class="tree-panel">
+    <div class="tree-search">
+      <span style="font-size:12px; color:rgba(28,52,84,0.3);">⌕</span>
+      <input type="text" placeholder="搜索文件夹..." id="treeSearch" oninput="filterTree(this.value)">
+    </div>
+    <div class="tree-root" id="treeRoot"></div>
+  </div>
+
+  <!-- RIGHT DETAIL -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="empty-detail">
+      <div class="em-icon">📁</div>
+      <p>点击左侧任意文件夹，查看文件清单</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   DATA SCHEMA
+   color: brand / product / market / content / ops / ai
+   priority: must / high / later
+   owner: 小桑 / 少杰 / 维维 / 小鱼 / 团队
+══════════════════════════════════════════════ */
+const DRIVE = {
+  name: "📁 ROUNY_EU_Project_V1",
+  desc: "ROUNY 欧美项目根目录，所有核心文件均在此文件夹下统一管理。命名规范：全英文，无空格，用下划线连接。",
+  path: "ROUNY_EU_Project_V1/",
+  children: [
+
+    /* ── 01 BRAND ────────────────────────────── */
+    {
+      name: "01_Brand_Strategy",
+      icon: "🎯", color: "brand",
+      desc: "品牌战略核心文档库。包含品牌基因、视觉识别系统（VIS）、IP 形象设定等所有品牌层面的基础文件。这是整个项目的「宪法」级目录，所有创作工作的出发点。",
+      files: [
+        { name: "ROUNY_Brand_Strategy_V1.0",        ext: "pdf",  icon: "📄", owner: "维维",  priority: "must",  desc: "完整品牌战略文档，包含市场定位、品牌调性、目标受众、竞品分析全集" },
+        { name: "ROUNY_Core_Values_Around_You",      ext: "md",   icon: "📝", owner: "维维",  priority: "must",  desc: "品牌核心价值观文字稿，「围家之爱」理念详述，AI 训练语料基础文件" },
+        { name: "ROUNY_Brand_Positioning_Statement", ext: "md",   icon: "📝", owner: "维维",  priority: "must",  desc: "品牌定位声明与核心价值主张，用于所有对外沟通的锚点文件" },
+        { name: "ROUNY_Competitor_Visual_Audit",     ext: "pdf",  icon: "📊", owner: "少杰",  priority: "high",  desc: "竞品视觉分析报告：Ninja / Dyson / Shark 等品牌视觉策略对比" },
+      ],
+      children: [
+        {
+          name: "01_VIS_Visual_Identity_System",
+          icon: "🎨", color: "brand",
+          desc: "品牌视觉识别系统完整文件包。包含 Logo 使用规范、色彩系统、字体系统、影像风格指南等。这是少杰主导产出的核心目录。",
+          files: [
+            { name: "ROUNY_VIS_Brand_Guidelines_Full",   ext: "pdf",  icon: "📄", owner: "少杰", priority: "must", desc: "完整 VI 手册 PDF，面向合作方发布版，含所有使用规范" },
+            { name: "ROUNY_Logo_Primary_RGB",            ext: "ai",   icon: "🖼️", owner: "少杰", priority: "must", desc: "主 Logo 源文件，AI 矢量格式，含全套色彩版本" },
+            { name: "ROUNY_Logo_Primary_RGB",            ext: "svg",  icon: "🖼️", owner: "少杰", priority: "must", desc: "主 Logo SVG，网页与数字媒体通用" },
+            { name: "ROUNY_Logo_All_Versions",           ext: "zip",  icon: "🗜️", owner: "少杰", priority: "must", desc: "Logo 全套交付包：主版/简版/反白/单色/横排/竖排，PNG+SVG+PDF" },
+            { name: "ROUNY_Color_System_Swatches",       ext: "ase",  icon: "🎨", owner: "少杰", priority: "must", desc: "Adobe 色板文件，含所有品牌色 HEX/RGB/CMYK/Pantone 数值" },
+            { name: "ROUNY_Color_System_Reference",      ext: "pdf",  icon: "📄", owner: "少杰", priority: "must", desc: "色彩参考手册：深海蓝#1C3454、松柏绿#5F8575、静谧蓝#A0BECD 等完整说明" },
+            { name: "ROUNY_Typography_Guide",            ext: "pdf",  icon: "📄", owner: "少杰", priority: "must", desc: "字体使用规范：Montserrat（标题）+ Open Sans（正文）层级体系" },
+            { name: "ROUNY_Imagery_Style_Guide",         ext: "pdf",  icon: "📄", owner: "少杰", priority: "must", desc: "影像风格指南：光线要求、构图原则、色调处理、北欧家居场景关键词表" },
+            { name: "ROUNY_Icon_System_Master",          ext: "fig",  icon: "🎨", owner: "少杰", priority: "high", desc: "图标系统主文件（Figma），含产品功能图标、界面图标全套" },
+          ]
+        },
+        {
+          name: "02_Rouny_Daddy_IP",
+          icon: "👨‍👦", color: "brand",
+          desc: "Rouny Daddy IP 形象完整设定文件。这是品牌情感核心，所有内容创作、摄影、广告的人物依据。",
+          files: [
+            { name: "ROUNY_Daddy_IP_Character_Bible",     ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "Rouny Daddy 完整角色圣经：年龄感/性格/穿着/行为/禁忌/故事线全集" },
+            { name: "ROUNY_Daddy_IP_Visual_Reference",    ext: "pdf", icon: "📄", owner: "少杰", priority: "must", desc: "视觉参考手册：爸爸/妈妈/儿子三人形象关键词、服装色系、家居风格" },
+            { name: "ROUNY_Daddy_Story_Archetypes",       ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "五大典型故事线：清晨交响曲/下班变形记/厨房实验室/温柔后盾/小意外大从容" },
+            { name: "ROUNY_Daddy_Photography_Brief",      ext: "pdf", icon: "📄", owner: "少杰", priority: "high", desc: "摄影指导简报：场景设置/光线要求/人物姿态/禁止事项，给摄影师的标准文件" },
+            { name: "ROUNY_Daddy_Scene_Keywords_Matrix",  ext: "md",  icon: "📝", owner: "少杰", priority: "high", desc: "20款产品 × 场景关键词矩阵，AI 生成拍摄 Prompt 的语料文件" },
+          ]
+        },
+        {
+          name: "03_Visual_Semantics_AI",
+          icon: "🧠", color: "ai",
+          desc: "视觉语意化文件包 —— REBIRTH-ALI 计划少杰输出的核心文件。将审美逻辑转译为 AI 可读规则。",
+          files: [
+            { name: "ROUNY_Visual_Logic_Whitepaper",     ext: "md",  icon: "📝", owner: "少杰", priority: "must", desc: "视觉逻辑白皮书：解释「为什么这么设计」，AI 学会如何「审」的逻辑来源" },
+            { name: "ROUNY_Visual_Redlines_Negatives",   ext: "md",  icon: "🚫", owner: "少杰", priority: "must", desc: "视觉红线清单：明确禁止的色彩偏差、构图方式、材质感失误，AI 审核边界" },
+            { name: "ROUNY_Master_Prompt_Template",      ext: "md",  icon: "📝", owner: "少杰", priority: "must", desc: "标准拍摄 Prompt 模板：光影/家具/人物姿态的标准描述框架，适配 AI 图像生成" },
+          ]
+        }
+      ]
+    },
+
+    /* ── 02 PRODUCTS ─────────────────────────── */
+    {
+      name: "02_Product_Digital_Assets",
+      icon: "📦", color: "product",
+      desc: "全产品线数字化资产库（REBIRTH-ALI 计划小桑负责输出）。每款产品拥有独立子文件夹，包含高精渲染图、CMF文档、实拍对比图及包装工程文件。这是 AI 品牌大脑的「视网膜」。",
+      files: [
+        { name: "ROUNY_Product_Naming_Rules_V1.0",       ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "产品命名规范文档：ROUNY + 人名音节×功能词融合逻辑，含全部现有代号释义" },
+        { name: "ROUNY_Product_Line_Overview",           ext: "xlsx",icon: "📊", owner: "小鱼", priority: "must", desc: "产品线总览表：20款产品代号、型号、功率、颜色等级、定价区间" },
+        { name: "ROUNY_Asset_Tracker_V2.0",              ext: "html",icon: "🌐", owner: "团队", priority: "must", desc: "数字资产追踪器 V2.0，每款产品 13 项交付进度实时管理工具" },
+      ],
+      children: [
+        {
+          name: "_TEMPLATE_Product_Folder_Structure",
+          icon: "🗂️", color: "product",
+          desc: "【模板】每个产品文件夹的标准四级目录结构。小桑每建立一个新产品时，复制此模板并重命名。",
+          files: [
+            { name: "01_Renders/  ROUNY_[代号]_R_FRONT_v1",  ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "正前视角 4K 纯白底渲染，品牌标识与主操控区清晰展示" },
+            { name: "01_Renders/  ROUNY_[代号]_R_SIDE_v1",   ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "正侧视角，完整侧面轮廓，高度比例与按键位置可辨" },
+            { name: "01_Renders/  ROUNY_[代号]_R_BACK_v1",   ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "正背视角，铭牌/接口/散热孔结构完整可读" },
+            { name: "01_Renders/  ROUNY_[代号]_R_ISO_v1",    ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "45°轴测立体图，最强造型语言与 CMF 层次感展示" },
+            { name: "01_Renders/  ROUNY_[代号]_R_TOP_v1",    ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "顶部操作面，旋钮/按键/显示屏交互区全貌" },
+            { name: "01_Renders/  ROUNY_[代号]_R_MACRO_v1",  ext: "png", icon: "🔍", owner: "小桑", priority: "must", desc: "宏观材质细节图：最具代表性材质交界处，拉丝方向、咬花纹理、接缝工艺" },
+            { name: "02_Photos/   ROUNY_[代号]_P_FRONT_[日期]",ext:"jpg",icon: "📸", owner: "小桑", priority: "must", desc: "摄影棚白底实拍正面，与渲染图比对物理质感真实度" },
+            { name: "02_Photos/   ROUNY_[代号]_P_ISO_[日期]", ext: "jpg",icon: "📸", owner: "小桑", priority: "must", desc: "摄影棚白底实拍 ISO 角度，最直观感知产品立体造型" },
+            { name: "02_Photos/   ROUNY_[代号]_P_DETAIL_[日期]",ext:"jpg",icon:"📸",owner:"小桑", priority: "high", desc: "细节实拍至少1张：材质质感/按钮手感/接缝处理等品质感细节" },
+            { name: "03_Engineering/  ROUNY_[代号]_CMF_v1",  ext: "md", icon: "📝", owner: "小桑", priority: "must", desc: "结构件清单：材质/工艺/Pantone色号/品牌语意标签，AI 触觉逻辑核心文件" },
+            { name: "03_Engineering/  ROUNY_[代号]_PKG_6SIDE_v1",ext:"pdf",icon:"📐",owner:"小桑",priority:"must",desc:"包装六面展开图，含全部印刷文字、警示语、功能图标，可供印刷直出" },
+            { name: "03_Engineering/  ROUNY_[代号]_PKG_Materials",ext:"md",icon:"📝",owner:"小桑",priority:"must",desc:"外盒材质（克重/纸板/工艺）+ 内托说明（材质/分区图示）" },
+            { name: "03_Engineering/  ROUNY_[代号]_README_AI",ext: "md", icon: "🤖", owner: "小桑", priority: "must", desc: "AI 索引文件：产品设计初衷、Rouny Daddy 场景关联、主要差异化卖点" },
+            { name: "04_Source/   ROUNY_[代号]_3D_Model",    ext: "step",icon:"⚙️", owner: "小桑", priority: "later",desc: "轻量化 3D 模型文件，备用，可选提交" },
+          ]
+        },
+        {
+          name: "Thermis_SV-8002C",
+          icon: "🥩", color: "product",
+          desc: "【样板产品】牛排慢煮机 SV-8002C · Thermis —— REBIRTH-ALI 计划首个入库样本，用于验证全套数字化流程。",
+          files: [
+            { name: "ROUNY_THERMIS_R_FRONT_v1",    ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "正前视角渲染，304不锈钢拉丝面与顶部触控屏区域" },
+            { name: "ROUNY_THERMIS_R_SIDE_v1",     ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "侧面轮廓，332mm 高度比例，夹扣结构展示" },
+            { name: "ROUNY_THERMIS_R_BACK_v1",     ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "背面，PTC 加热组件区域与铭牌位置" },
+            { name: "ROUNY_THERMIS_R_ISO_v1",      ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "45°轴测，呈现机身整体美学与夹具细节" },
+            { name: "ROUNY_THERMIS_R_TOP_v1",      ext: "png", icon: "🖼️", owner: "小桑", priority: "must", desc: "顶部触控操作面：温度/时间/预设菜单按键全貌" },
+            { name: "ROUNY_THERMIS_R_MACRO_v1",    ext: "png", icon: "🔍", owner: "小桑", priority: "must", desc: "180目不锈钢拉丝方向宏观细节，体现品质触感" },
+            { name: "ROUNY_THERMIS_CMF_v1",        ext: "md",  icon: "📝", owner: "小桑", priority: "must", desc: "外壳：304食品级不锈钢+垂直拉丝（外刚）/ 顶部：PC+ABS哑光（内柔）/ PVC防滑底座" },
+            { name: "ROUNY_THERMIS_PKG_6SIDE_v1",  ext: "pdf", icon: "📐", owner: "小桑", priority: "must", desc: "包装六面展开图，155×110×370mm 彩盒，含多语言警示贴" },
+            { name: "ROUNY_THERMIS_PKG_Materials",  ext: "md",  icon: "📝", owner: "小桑", priority: "must", desc: "外盒材质规格 + 提示贴三类方案（台面/水位/除垢）文字稿" },
+            { name: "ROUNY_THERMIS_README_AI",      ext: "md",  icon: "🤖", owner: "小桑", priority: "must", desc: "SV-8002C 设计初衷、1300W/IPX7/35dB 核心卖点矩阵、AI文案引用索引" },
+          ]
+        }
+      ]
+    },
+
+    /* ── 03 MARKET RESEARCH ─────────────────── */
+    {
+      name: "03_Market_Research_EU",
+      icon: "🌍", color: "market",
+      desc: "欧美市场调研与竞品分析文件库。包含目标受众分析、竞品战略拆解、渠道环境评估等。这是品牌战略决策的数据依据。",
+      files: [
+        { name: "ROUNY_EU_Market_Validation_Report",   ext: "pdf", icon: "📊", owner: "维维", priority: "must", desc: "欧美市场验证报告：美国/德国/法国/英国 5大维度分析，市场可行性结论" },
+        { name: "ROUNY_EU_Consumer_Insight_Report",    ext: "pdf", icon: "📊", owner: "维维", priority: "must", desc: "消费者洞察报告：购买决策路径/场景痛点/价值驱动/媒体消费习惯深度分析" },
+        { name: "ROUNY_EU_Competitor_Analysis",        ext: "pdf", icon: "📊", owner: "维维", priority: "must", desc: "品类竞品分析：Ninja/Breville/Dyson/Shark 等定价区间、营销策略、机会点" },
+        { name: "ROUNY_EU_Channel_Marketing_Analysis", ext: "pdf", icon: "📊", owner: "维维", priority: "must", desc: "渠道与营销环境：Amazon生态/DTC/社交平台/KOL/GDPR合规要求全景分析" },
+        { name: "ROUNY_EU_Target_Persona_Ethan_Olivia",ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "目标受众画像：Ethan（35岁核心男性）& Olivia（34岁职业女性）详细设定" },
+        { name: "ROUNY_EU_Certification_Compliance",   ext: "md",  icon: "📋", owner: "维维", priority: "high", desc: "合规清单：CE/RoHS/WEEE/ErP/UL认证要求、GDPR数据保护要点" },
+      ]
+    },
+
+    /* ── 04 CONTENT MARKETING ───────────────── */
+    {
+      name: "04_Content_Marketing",
+      icon: "✍️", color: "content",
+      desc: "内容营销与素材库。包含文案体系、社媒内容模板、广告创意、KOL 合作简报等。所有内容产出均基于此目录中的规范文件。",
+      files: [
+        { name: "ROUNY_Content_Strategy_Master",      ext: "pdf", icon: "📄", owner: "小鱼", priority: "must", desc: "内容策略总纲：4大支柱/渠道分配/发布频率/内容类型比例" },
+        { name: "ROUNY_Brand_Voice_Guidelines",       ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "品牌语调规范：温暖亲切/专业可靠/简洁直接，禁用词汇清单，中英文案红线" },
+        { name: "ROUNY_Hashtag_Strategy",             ext: "md",  icon: "📝", owner: "小鱼", priority: "high", desc: "话题标签策略：#AroundYou #ROUNYmoments #HomeDadLife 分层标签体系" },
+      ],
+      children: [
+        {
+          name: "01_Social_Media_Templates",
+          icon: "📱", color: "content",
+          desc: "社交媒体内容模板。按平台分类，所有模板均符合 VIS 规范。",
+          files: [
+            { name: "ROUNY_Instagram_Feed_Templates",    ext: "fig", icon: "🎨", owner: "少杰", priority: "must", desc: "Instagram 九宫格内容框架：产品展示/生活方式/教程/节日，Figma 源文件" },
+            { name: "ROUNY_Instagram_Stories_Templates", ext: "fig", icon: "🎨", owner: "少杰", priority: "must", desc: "Stories 模板：1080×1920，品牌元素上下区定位，互动组件规范" },
+            { name: "ROUNY_Pinterest_Pin_Templates",     ext: "fig", icon: "🎨", owner: "少杰", priority: "high", desc: "Pinterest Pin 模板：1000×1500，家居灵感/教程步骤/产品场景三类" },
+            { name: "ROUNY_YouTube_Thumbnail_Templates", ext: "fig", icon: "🎨", owner: "少杰", priority: "high", desc: "YouTube 封面模板：1280×720，产品评测/教程/品牌故事三种风格" },
+            { name: "ROUNY_Email_Template_Welcome",      ext: "html",icon: "🌐", owner: "少杰", priority: "high", desc: "欢迎邮件模板：品牌故事入口/产品导览/首单优惠，响应式 HTML" },
+          ]
+        },
+        {
+          name: "02_Copywriting_Library",
+          icon: "📝", color: "content",
+          desc: "文案素材库。覆盖产品、节日、故事场景等多类型文案，中英文双版本。",
+          files: [
+            { name: "ROUNY_Product_Copywriting_EN",    ext: "md",  icon: "📝", owner: "小鱼", priority: "must", desc: "产品文案库（英文）：各产品线标题/副标题/卖点描述，Amazon listing 直用格式" },
+            { name: "ROUNY_Story_Scenes_Scripts",      ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "故事场景脚本：5大 Rouny Daddy 典型场景详细视频/图文脚本框架" },
+            { name: "ROUNY_Holiday_Campaign_Briefs",   ext: "md",  icon: "📝", owner: "小鱼", priority: "high", desc: "节日营销简报：父亲节/感恩节/圣诞节礼物属性文案与视觉方向" },
+            { name: "ROUNY_KOL_Collaboration_Brief",   ext: "pdf", icon: "📄", owner: "小鱼", priority: "high", desc: "KOL 合作简报模板：品牌简介/调性要求/禁忌事项/内容示例，家居/父亲类博主专用" },
+          ]
+        },
+        {
+          name: "03_Ad_Creatives",
+          icon: "📢", color: "content",
+          desc: "广告创意素材库。涵盖 Amazon、Google、Meta 各渠道所需尺寸与创意方向。",
+          files: [
+            { name: "ROUNY_Amazon_Main_Images_Guide",  ext: "pdf", icon: "📄", owner: "少杰", priority: "must", desc: "Amazon 主图规范：7张主图分工（白底/场景/细节/功能/对比/尺寸/包装）" },
+            { name: "ROUNY_Amazon_A_Plus_Templates",   ext: "fig", icon: "🎨", owner: "少杰", priority: "must", desc: "A+ 内容模板：品牌故事模块/功能图解/对比图，按 Amazon 尺寸标准" },
+            { name: "ROUNY_Meta_Ad_Templates",         ext: "fig", icon: "🎨", owner: "少杰", priority: "high", desc: "Meta 广告素材：Feed 1×1/竖版 4×5/Stories，单图+轮播两套" },
+            { name: "ROUNY_Google_Shopping_Images",    ext: "fig", icon: "🎨", owner: "少杰", priority: "high", desc: "Google 购物广告图：白底产品图+场景图，符合 Google Merchant Center 要求" },
+          ]
+        }
+      ]
+    },
+
+    /* ── 05 ECOMMERCE OPS ───────────────────── */
+    {
+      name: "05_Ecommerce_Operations",
+      icon: "🛒", color: "ops",
+      desc: "电商运营操作文件库。涵盖 Amazon 店铺管理、定价策略、物流合规、客服话术等执行层面文件。",
+      files: [
+        { name: "ROUNY_EU_Channel_Strategy",          ext: "pdf", icon: "📄", owner: "小鱼", priority: "must", desc: "渠道策略：Amazon/DTC官网/Otto/Cdiscount 优先级与运营节奏规划" },
+        { name: "ROUNY_EU_Launch_Strategy_Phases",    ext: "pdf", icon: "📄", owner: "维维", priority: "must", desc: "4阶段发布策略：预热期/正式发布/增长期/稳固期 详细执行计划" },
+        { name: "ROUNY_EU_Pricing_Framework",         ext: "xlsx",icon: "📊", owner: "小鱼", priority: "must", desc: "定价框架：各市场基准价/套装优惠/早鸟策略/会员价格体系" },
+        { name: "ROUNY_Amazon_Brand_Store_Blueprint", ext: "pdf", icon: "📄", owner: "小鱼", priority: "must", desc: "Amazon 品牌专区设计蓝图：页面结构/模块分工/关键词策略" },
+        { name: "ROUNY_EU_Compliance_Checklist",      ext: "md",  icon: "📋", owner: "维维", priority: "must", desc: "合规清单：CE/RoHS/WEEE 认证状态，GDPR 数据使用规范确认" },
+        { name: "ROUNY_Customer_Service_SOP",         ext: "md",  icon: "📝", owner: "小鱼", priority: "high", desc: "客服话术标准：常见问题/退换货流程/评价管理，品牌调性一致" },
+        { name: "ROUNY_Marketing_Calendar_2026",      ext: "xlsx",icon: "📅", owner: "小鱼", priority: "high", desc: "2026年营销日历：Prime Day/Black Friday/父亲节/圣诞节重点节点规划" },
+      ]
+    },
+
+    /* ── 06 AI BRAIN ────────────────────────── */
+    {
+      name: "06_AI_Brand_Brain_REBIRTH_ALI",
+      icon: "🤖", color: "ai",
+      desc: "REBIRTH-ALI 计划输出目录 —— 「数字阿力老师」AI 大脑知识库。将品牌视觉逻辑、产品物理数据、叙事框架整合成 AI 可深度检索的结构化语料。这是整个计划的最终产出。",
+      files: [
+        { name: "REBIRTH_ALI_Project_Brief",         ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "REBIRTH-ALI 项目执行计划书，目标/团队职能/路线图/KPI/SOP 完整版" },
+        { name: "ROUNY_AI_Master_System_Prompt",     ext: "md",  icon: "🤖", owner: "维维", priority: "must", desc: "AI 助理核心系统提示词：品牌DNA/角色定义/任务场景/输出规范/禁忌清单" },
+        { name: "ROUNY_NotebookLM_Index",            ext: "md",  icon: "📋", owner: "维维", priority: "must", desc: "NotebookLM 索引文件：所有已导入语料的目录与引用关系说明" },
+        { name: "ROUNY_AI_Quality_Test_Blind_Suite", ext: "md",  icon: "✅", owner: "少杰", priority: "must", desc: "AI 盲测题库：20组图片识别题/文案调性题，用于阶段性验收，目标准确率≥95%" },
+      ],
+      children: [
+        {
+          name: "01_Training_Corpus_Brand",
+          icon: "📚", color: "ai",
+          desc: "品牌层训练语料。所有品牌战略、调性、IP 设定的 Markdown 文件汇集区，直接导入 NotebookLM。",
+          files: [
+            { name: "corpus_brand_strategy",   ext: "md", icon: "📝", owner: "维维", priority: "must", desc: "品牌战略全文 Markdown，合并版，AI 知识库导入专用" },
+            { name: "corpus_rouny_daddy_ip",   ext: "md", icon: "📝", owner: "维维", priority: "must", desc: "Rouny Daddy IP 全集 Markdown，含性格/故事/禁忌，AI 叙事引用" },
+            { name: "corpus_vis_rules",        ext: "md", icon: "📝", owner: "少杰", priority: "must", desc: "视觉规则语意化 Markdown：色彩/字体/影像/红线，AI 视觉审核依据" },
+          ]
+        },
+        {
+          name: "02_Training_Corpus_Products",
+          icon: "📦", color: "ai",
+          desc: "产品层训练语料。每款产品的 CMF + README_AI 文件汇集区，支撑 AI 生成精准、有质感的产品描述。",
+          files: [
+            { name: "corpus_product_naming_logic", ext: "md", icon: "📝", owner: "维维", priority: "must", desc: "产品命名逻辑完整语料，AI 生成新代号时的参考框架" },
+            { name: "corpus_all_cmf_merged",       ext: "md", icon: "📝", owner: "小桑", priority: "must", desc: "全产品 CMF 合并文件，20款产品材质/工艺/尺寸数据，AI 文案触觉逻辑" },
+            { name: "corpus_product_selling_points",ext:"md", icon: "📝", owner: "小鱼", priority: "must", desc: "20款产品差异化卖点矩阵，AI 自动匹配 Rouny Daddy 场景的引用基础" },
+          ]
+        }
+      ]
+    },
+
+    /* ── 07 INTERNAL DOCS ───────────────────── */
+    {
+      name: "07_Internal_Operations",
+      icon: "🗃️", color: "ops",
+      desc: "内部运营管理文件。会议记录、版本更新日志、团队协作规范等。不对外发布。",
+      files: [
+        { name: "ROUNY_Brand_Meeting_Record_0326",  ext: "md",  icon: "📝", owner: "维维", priority: "must", desc: "品牌探讨会议记录 0326 — 创始人意图最高优先级文件，品牌决策基准" },
+        { name: "ROUNY_File_Naming_Convention",     ext: "md",  icon: "📋", owner: "团队", priority: "must", desc: "文件命名协议：全英文/无中文/下划线分隔/版本号规范，团队全员遵守" },
+        { name: "ROUNY_Project_Changelog_V1",       ext: "md",  icon: "📋", owner: "维维", priority: "high", desc: "项目变更日志：品牌策略迭代记录，确保所有成员了解最新版本状态" },
+        { name: "ROUNY_Folder_Access_Permission",   ext: "md",  icon: "🔐", owner: "维维", priority: "high", desc: "文件夹权限说明：各目录的查看/编辑权限分配（小桑/少杰/小鱼/外部合作方）" },
+      ]
+    }
+
+  ]
+};
+
+/* ══════════════════════════════════════════════
+   BUILD TREE
+══════════════════════════════════════════════ */
+let selectedNode = null;
+let allNodes = [];
+
+function countAll(node) {
+  let folders = 0, files = 0;
+  if (node.children) {
+    for (const c of node.children) {
+      folders++;
+      const r = countAll(c);
+      folders += r.folders;
+      files += r.files;
+    }
+  }
+  if (node.files) files += node.files.length;
+  return { folders, files };
+}
+
+function buildTree(node, depth = 0, parentEl) {
+  const item = document.createElement('div');
+  item.className = 'f-item';
+  item.dataset.depth = depth;
+
+  const row = document.createElement('div');
+  row.className = 'f-row';
+  if (node.color) row.classList.add('fb-' + node.color);
+
+  // indent
+  for (let i = 0; i < depth; i++) {
+    const ind = document.createElement('div');
+    ind.className = 'f-indent';
+    row.appendChild(ind);
+  }
+
+  // toggle
+  const toggle = document.createElement('div');
+  toggle.className = 'f-toggle';
+  if (node.children) toggle.textContent = '▶';
+  row.appendChild(toggle);
+
+  // icon
+  const icon = document.createElement('span');
+  icon.className = 'f-icon';
+  icon.textContent = node.icon || '📁';
+  row.appendChild(icon);
+
+  // name
+  const name = document.createElement('span');
+  name.className = 'f-name folder';
+  name.textContent = node.name;
+  row.appendChild(name);
+
+  // count or tag
+  if (node.color) {
+    const tag = document.createElement('span');
+    tag.className = `f-tag tag-${node.color}`;
+    tag.textContent = node.color === 'brand' ? 'BRAND' :
+                      node.color === 'product' ? 'PROD' :
+                      node.color === 'market' ? 'MKT' :
+                      node.color === 'content' ? 'CNT' :
+                      node.color === 'ops' ? 'OPS' : 'AI';
+    row.appendChild(tag);
+  }
+
+  item.appendChild(row);
+
+  // children container
+  let childrenEl = null;
+  if (node.children) {
+    childrenEl = document.createElement('div');
+    childrenEl.className = 'f-children';
+    node.children.forEach(child => buildTree(child, depth + 1, childrenEl));
+    item.appendChild(childrenEl);
+  }
+
+  // click
+  row.addEventListener('click', () => {
+    // deselect all
+    document.querySelectorAll('.f-row.active').forEach(r => r.classList.remove('active'));
+    row.classList.add('active');
+
+    // toggle children
+    if (childrenEl) {
+      const isOpen = childrenEl.classList.contains('open');
+      childrenEl.classList.toggle('open', !isOpen);
+      toggle.classList.toggle('open', !isOpen);
+    }
+
+    showDetail(node);
+  });
+
+  allNodes.push({ node, row, item });
+  parentEl.appendChild(item);
+}
+
+function showDetail(node) {
+  const panel = document.getElementById('detailPanel');
+
+  let html = `
+    <div class="detail-path">ROUNY_EU_Project_V1/ › ${node.name}/</div>
+    <h2>${node.icon || '📁'} ${node.name}</h2>
+    <p class="detail-desc">${node.desc || ''}</p>
+  `;
+
+  if (node.files && node.files.length > 0) {
+    html += `
+      <div class="req-legend">
+        <div class="req-legend-item"><div class="req-dot req-must"></div> MUST — 必须交付</div>
+        <div class="req-legend-item"><div class="req-dot req-high"></div> HIGH — 重要，尽快</div>
+        <div class="req-legend-item"><div class="req-dot req-later"></div> LATER — 后续补充</div>
+      </div>
+      <div class="file-section">${node.files.length} 个文件 · 点击行查看描述</div>
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th class="td-icon"></th>
+            <th>文件名</th>
+            <th class="td-owner">负责人</th>
+            <th class="td-req">优先级</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    node.files.forEach(f => {
+      html += `
+        <tr>
+          <td class="td-icon">${f.icon}</td>
+          <td class="td-name">${f.name}<br><span class="td-ext">.${f.ext}</span></td>
+          <td class="td-owner">${f.owner}</td>
+          <td class="td-req"><div class="req-dot req-${f.priority}" title="${f.priority.toUpperCase()}"></div></td>
+          <td class="td-desc">${f.desc}</td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+  }
+
+  if (node.children && node.children.length > 0) {
+    html += `<div class="file-section" style="margin-top:${node.files ? '32px' : '0'};">${node.children.length} 个子文件夹</div>`;
+    node.children.forEach(c => {
+      const fileCount = c.files ? c.files.length : 0;
+      html += `
+        <div style="
+          display:flex; align-items:flex-start; gap:14px;
+          padding:14px 16px; border:1px solid rgba(28,52,84,0.08);
+          border-radius:8px; margin-bottom:8px;
+          background:#FFFFFF;
+        ">
+          <span style="font-size:20px;">${c.icon || '📁'}</span>
+          <div>
+            <div style="font-family:'DM Mono',monospace; font-size:12px; color:rgba(28,52,84,0.85); margin-bottom:4px;">${c.name}/</div>
+            <div style="font-size:12px; color:rgba(28,52,84,0.45); line-height:1.6;">${c.desc ? c.desc.slice(0,100) + '…' : ''}</div>
+            ${fileCount ? `<div style="font-size:10px; color:var(--sky); font-family:'DM Mono',monospace; margin-top:6px;">${fileCount} 个文件</div>` : ''}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  if (!node.files && !node.children) {
+    html += `<div class="empty-detail"><div class="em-icon">📂</div><p>此文件夹暂无文件定义</p></div>`;
+  }
+
+  panel.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════
+   FILTER
+══════════════════════════════════════════════ */
+function filterTree(query) {
+  const q = query.toLowerCase().trim();
+  allNodes.forEach(({ node, row, item }) => {
+    if (!q) {
+      item.style.display = '';
+      return;
+    }
+    const match = node.name.toLowerCase().includes(q) ||
+                  (node.desc && node.desc.toLowerCase().includes(q));
+    item.style.display = match ? '' : 'none';
+  });
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+const treeRoot = document.getElementById('treeRoot');
+
+// Root node header
+const rootRow = document.createElement('div');
+rootRow.className = 'f-row';
+rootRow.style.cssText = 'border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:8px; padding-bottom:10px; cursor:default;';
+rootRow.innerHTML = `<span class="f-icon">🗂️</span><span class="f-name folder" style="color:var(--orange);">${DRIVE.name}</span>`;
+treeRoot.appendChild(rootRow);
+
+DRIVE.children.forEach(child => buildTree(child, 0, treeRoot));
+
+// Stats
+const stats = countAll(DRIVE);
+document.getElementById('totalFolders').textContent = stats.folders + (DRIVE.children.length);
+document.getElementById('totalFiles').textContent = stats.files;
+
+// Root click -> show overview
+rootRow.addEventListener('click', () => {
+  document.querySelectorAll('.f-row.active').forEach(r => r.classList.remove('active'));
+  showDetail({
+    icon: '🗂️',
+    name: 'ROUNY_EU_Project_V1',
+    desc: DRIVE.desc,
+    children: DRIVE.children
+  });
+});
+
+// Auto-select first folder
+if (DRIVE.children[0]) {
+  const first = allNodes[0];
+  if (first) {
+    first.row.classList.add('active');
+    showDetail(first.node);
+  }
+}
+</script>
+</body>
+</html>
