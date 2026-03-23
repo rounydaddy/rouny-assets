@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROUNY | 品牌数字资产追踪器 V2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1C3454;
+  --navy-mid: #253f65;
+  --navy-light: #2e4e7a;
+  --grey-warm: #E6E1DC;
+  --grey-mid: #c4bdb6;
+  --pine: #5F8575;
+  --pine-light: #7da393;
+  --sky: #A0BECD;
+  --orange: #EB974E;
+  --bg: #F2EFE9;
+  --card: #FFFFFF;
+  --text: #1C3454;
+  --text-muted: #8a99aa;
+  --border: #e0dbd4;
+
+  --cat-render: #EB974E;
+  --cat-cmf: #5F8575;
+  --cat-pack: #A0BECD;
+  --cat-doc: #b09ec9;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 80px;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--navy);
+  color: white;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(28,52,84,0.3);
+}
+
+.topbar-brand { display: flex; align-items: baseline; gap: 10px; }
+.topbar-brand .logo { font-size: 20px; font-weight: 700; letter-spacing: 3px; }
+.topbar-brand .ver { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--sky); opacity: 0.8; }
+.topbar-right { display: flex; align-items: center; gap: 15px; }
+
+.global-stat {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+.global-stat .num { font-size: 18px; font-weight: 600; color: #fff; }
+.global-stat .label { color: var(--sky); }
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 960px; margin: 0 auto; padding: 40px 20px 0; }
+
+/* ── ADD PANEL ── */
+.add-panel {
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  display: flex; gap: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(28,52,84,0.04);
+}
+
+.add-panel input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-size: 14px;
+  font-family: 'Sora', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.add-panel input:focus { border-color: var(--navy); }
+.add-panel input::placeholder { color: var(--text-muted); font-size: 13px; }
+
+.add-panel .hint-wrap { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.add-panel .hint {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.btn {
+  border: none; cursor: pointer; border-radius: 8px;
+  font-family: 'Sora', sans-serif; font-weight: 600;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-primary {
+  background: var(--navy);
+  color: white;
+  padding: 11px 22px;
+  font-size: 13px;
+}
+.btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
+.btn-sm {
+  background: none; border: 1.5px solid var(--border);
+  color: var(--text-muted); font-size: 11px;
+  padding: 5px 12px;
+}
+.btn-sm:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── PRODUCT CARD ── */
+.product-card {
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(28,52,84,0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.product-card:hover { box-shadow: 0 4px 24px rgba(28,52,84,0.08); }
+.product-card.all-done { border-color: var(--pine-light); }
+
+.card-header {
+  padding: 18px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.card-header:hover { background: rgba(28,52,84,0.015); }
+
+.card-title-row { display: flex; align-items: center; gap: 12px; }
+.card-name { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+.card-code {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--text-muted); background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px;
+}
+
+.card-right { display: flex; align-items: center; gap: 12px; }
+
+/* Progress ring */
+.progress-ring-wrap {
+  position: relative; width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.progress-ring-wrap svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+.progress-ring-fill {
+  fill: none; stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+.progress-ring-text {
+  font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+  color: var(--text);
+}
+
+.badge-done {
+  background: var(--pine); color: white;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+.chevron { color: var(--text-muted); font-size: 12px; transition: transform 0.3s; }
+.chevron.open { transform: rotate(180deg); }
+
+.delete-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: #cc5555; opacity: 0.5;
+  padding: 4px 8px; border-radius: 4px;
+}
+.delete-btn:hover { opacity: 1; background: #fff0f0; }
+
+/* ── CATEGORY SEGMENTS ── */
+.cat-bar {
+  height: 4px;
+  display: flex; gap: 2px;
+  padding: 0 24px;
+  margin-bottom: 0;
+}
+.cat-seg {
+  flex: 1; border-radius: 2px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+/* ── CARD BODY ── */
+.card-body {
+  display: none; padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+}
+.card-body.open { display: block; }
+
+/* ── CATEGORY BLOCK ── */
+.cat-block { margin-top: 20px; }
+.cat-label {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+}
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cat-name {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.cat-count {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.tasks-grid { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── TASK ITEM ── */
+.task-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.task-item:hover { border-color: var(--border); }
+.task-item.done { background: #f0f6f3; }
+
+.task-check {
+  width: 18px; height: 18px;
+  border-radius: 5px; border: 2px solid var(--border);
+  background: white; flex-shrink: 0; margin-top: 2px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.task-check.checked {
+  background: var(--pine); border-color: var(--pine);
+}
+.task-check.checked::after {
+  content: '✓'; color: white; font-size: 11px; font-weight: 700;
+}
+
+.task-info { flex: 1; min-width: 0; }
+.task-title {
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+}
+.task-title.done { text-decoration: line-through; color: var(--text-muted); }
+.task-spec {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: var(--sky); background: rgba(160,190,205,0.15);
+  border-radius: 3px; padding: 1px 6px;
+}
+
+.task-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+
+.task-note-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.task-note {
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  color: var(--text-muted); background: transparent;
+  border: none; border-bottom: 1px dashed var(--border);
+  width: 100%; padding: 2px 4px; outline: none;
+  transition: border-color 0.2s;
+}
+.task-note:focus { border-color: var(--sky); color: var(--text); }
+.task-note::placeholder { color: var(--grey-mid); }
+
+/* ── FOOTER ACTIONS ── */
+.card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.added-date {
+  font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted);
+}
+
+/* ── EXPORT MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(28,52,84,0.5); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card); border-radius: 12px;
+  padding: 28px; max-width: 680px; width: 90%;
+  box-shadow: 0 20px 60px rgba(28,52,84,0.25);
+}
+.modal h3 {
+  font-size: 14px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 16px;
+}
+.modal pre {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px;
+  white-space: pre-wrap; word-break: break-all;
+  max-height: 360px; overflow-y: auto;
+  line-height: 1.7; color: var(--text);
+}
+.modal-btns { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+.btn-copy {
+  background: var(--navy); color: white;
+  padding: 9px 20px; font-size: 12px;
+}
+
+/* ── EMPTY STATE ── */
+.empty {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty .empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty p { font-size: 13px; }
+
+/* ── FILE NAMING GUIDE ── */
+.naming-guide {
+  background: var(--navy);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  color: rgba(255,255,255,0.85);
+}
+.naming-guide .ng-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--sky);
+  margin-bottom: 12px; font-family: 'DM Mono', monospace;
+}
+.naming-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.ng-item {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 8px 12px;
+  line-height: 1.6;
+}
+.ng-item .ng-type { color: var(--orange); font-size: 10px; }
+.ng-item .ng-example { color: rgba(255,255,255,0.9); }
+
+@media (max-width: 600px) {
+  .topbar { padding: 14px 16px; }
+  .main { padding: 20px 12px 0; }
+  .add-panel { flex-direction: column; }
+  .naming-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <span class="logo">ROUNY</span>
+    <span class="ver">DIGITAL ASSET TRACKER · V2.0</span>
+  </div>
+  <div class="topbar-right">
+    <div class="global-stat" id="globalStat">
+      <span class="num" id="gPct">—</span>
+      <span class="label">总完成度</span>
+    </div>
+    <div class="global-stat" id="globalProd">
+      <span class="num" id="gDone">—</span>
+      <span class="label">产品入库</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ADD PRODUCT -->
+  <div class="add-panel">
+    <div class="hint-wrap">
+      <input type="text" id="newName" placeholder="输入产品代号，如：Thermis SV-8002C / TENDER SS-6001" />
+      <span class="hint">规范：[系列名] [型号]-[SKU码] | 例：Glacier BL-3003 / CrispAir AF-5001B</span>
+    </div>
+    <button class="btn btn-primary" onclick="addProduct()">＋ 添加产品</button>
+  </div>
+
+  <!-- NAMING GUIDE -->
+  <div class="naming-guide">
+    <div class="ng-title">📁 文件命名规范速查 · 小桑参考</div>
+    <div class="naming-grid">
+      <div class="ng-item">
+        <div class="ng-type">渲染图</div>
+        <div class="ng-example">ROUNY_[代号]_R_[视角]_v1<br>视角: FRONT / SIDE / BACK / ISO / TOP / MACRO</div>
+      </div>
+      <div class="ng-item">
+        <div class="ng-type">实拍照片</div>
+        <div class="ng-example">ROUNY_[代号]_P_[视角]_[日期]<br>例: ROUNY_TENDER_P_FRONT_20260315</div>
+      </div>
+      <div class="ng-item">
+        <div class="ng-type">CMF 文档</div>
+        <div class="ng-example">ROUNY_[代号]_CMF_v1.md<br>例: ROUNY_TENDER_CMF_v1.md</div>
+      </div>
+      <div class="ng-item">
+        <div class="ng-type">包装展开图</div>
+        <div class="ng-example">ROUNY_[代号]_PKG_6SIDE_v1.pdf<br>尺寸PDF + 展开图各一份</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT LIST -->
+  <div class="section-header">
+    <span class="section-title">产品数字化进度库</span>
+    <button class="btn btn-sm" onclick="exportAll()">导出全部报告 ↗</button>
+  </div>
+
+  <div id="productList"></div>
+
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal" onclick="closeModal(event)">
+  <div class="modal">
+    <h3>📋 交付状态报告 · Markdown</h3>
+    <pre id="exportContent"></pre>
+    <div class="modal-btns">
+      <button class="btn btn-sm" onclick="closeModal()">关闭</button>
+      <button class="btn btn-primary btn-copy" onclick="copyExport()">复制到剪贴板</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TASK SCHEMA ──────────────────────────────────────────
+const CATEGORIES = [
+  {
+    id: 'render',
+    name: '视觉渲染',
+    color: 'var(--cat-render)',
+    tasks: [
+      { id: 'r_front',  title: '正前视角渲染', spec: 'FRONT',  desc: '4K 纯白底 (#FFF)，正面展示品牌标识与主要操控区' },
+      { id: 'r_side',   title: '正侧视角渲染', spec: 'SIDE',   desc: '完整侧面轮廓，展示高度比例与把手/按键位置' },
+      { id: 'r_back',   title: '正背视角渲染', spec: 'BACK',   desc: '铭牌区域清晰可读，接口/散热孔结构完整' },
+      { id: 'r_iso',    title: '45° 轴测渲染', spec: 'ISO',    desc: '立体感最强角度，强调整体造型语言与CMF层次感' },
+      { id: 'r_top',    title: '顶部操作面渲染',spec: 'TOP',   desc: '旋钮/按键/显示屏交互区域全貌，尺寸比例准确' },
+      { id: 'r_macro',  title: '宏观材质细节图', spec: 'MACRO', desc: '最具代表性材质交界处：拉丝方向、咬花纹理、接缝工艺' }
+    ]
+  },
+  {
+    id: 'cmf',
+    name: 'CMF 规格文档',
+    color: 'var(--cat-cmf)',
+    tasks: [
+      { id: 'c_struct', title: '结构件清单 (Structural Mapping)', spec: '.md', desc: '所有结构件 → 材质 / 工艺 / Pantone色号 / 品牌语意标签，表格格式' },
+      { id: 'c_phys',  title: '物理规格 (Physical Logic)',        spec: '.md', desc: '精确尺寸 L×W×H(mm)、净重 / 毛重(g)，AI 场景比例判断依据' },
+      { id: 'c_color', title: '品牌色一致性确认',                 spec: 'HEX', desc: '深海蓝 #1C3454 等品牌色，在渲染图中与标准色比对后签字确认' }
+    ]
+  },
+  {
+    id: 'pack',
+    name: '包装工程',
+    color: 'var(--cat-pack)',
+    tasks: [
+      { id: 'p_6side', title: '六面展开图 PDF',     spec: 'PDF',  desc: '含全部印刷文字、警示语、功能图标，可供印刷直出的矢量版本' },
+      { id: 'p_mat',   title: '外盒材质说明',       spec: '.md',  desc: '克重 / 纸板类型 / 坑型 (E坑/B坑) / 表面工艺 (哑膜/局部UV)' },
+      { id: 'p_inner', title: '内部结构 & 内托说明', spec: '.md',  desc: '内托材质 (纸浆模塑/EPE珍珠棉) + 分区图示，用于环保性与安全性叙事' }
+    ]
+  },
+  {
+    id: 'doc',
+    name: '实拍 & 索引文档',
+    color: 'var(--cat-doc)',
+    tasks: [
+      { id: 'd_photo',  title: '摄影棚白底实拍',     spec: '摄影', desc: '纯白背景实物拍摄：正面 + ISO + 细节至少3张，与渲染图进行物理质感比对' },
+      { id: 'd_readme', title: 'README_AI 索引',     spec: '.md',  desc: '产品设计初衷、"围家之爱"场景关联、主要差异化卖点，供 AI 文案引用' },
+      { id: 'd_folder', title: '交付文件夹结构确认', spec: 'Drive', desc: '01_Renders / 02_Photos / 03_Engineering / 04_Source 四级目录检查完整' }
+    ]
+  }
+];
+
+// ── STATE ────────────────────────────────────────────────
+function loadData() {
+  try { return JSON.parse(localStorage.getItem('rouny_v2_assets')) || []; }
+  catch(e) { return []; }
+}
+
+function saveData(products) {
+  localStorage.setItem('rouny_v2_assets', JSON.stringify(products));
+}
+
+let products = loadData();
+
+function initTasks() {
+  return CATEGORIES.flatMap(cat =>
+    cat.tasks.map(t => ({
+      catId: cat.id,
+      id: t.id,
+      completed: false,
+      note: ''
+    }))
+  );
+}
+
+// ── MUTATIONS ────────────────────────────────────────────
+function addProduct() {
+  const el = document.getElementById('newName');
+  const name = el.value.trim();
+  if (!name) { el.focus(); return; }
+
+  products.unshift({
+    id: Date.now(),
+    name,
+    tasks: initTasks(),
+    expanded: true,
+    addedAt: new Date().toLocaleDateString('zh-CN')
+  });
+
+  el.value = '';
+  saveData(products);
+  render();
+}
+
+function toggleTask(pid, tid) {
+  const p = products.find(p => p.id === pid);
+  const t = p.tasks.find(t => t.id === tid);
+  t.completed = !t.completed;
+  saveData(products);
+  render();
+}
+
+function updateNote(pid, tid, val) {
+  const p = products.find(p => p.id === pid);
+  const t = p.tasks.find(t => t.id === tid);
+  t.note = val;
+  saveData(products);
+}
+
+function deleteProduct(pid) {
+  if (!confirm('确定移除此产品的所有数字资产记录？')) return;
+  products = products.filter(p => p.id !== pid);
+  saveData(products);
+  render();
+}
+
+function toggleExpand(pid) {
+  const p = products.find(p => p.id === pid);
+  p.expanded = !p.expanded;
+  render();
+}
+
+// ── EXPORT ───────────────────────────────────────────────
+function exportAll() {
+  if (products.length === 0) { alert('暂无产品数据'); return; }
+  let md = `# ROUNY 数字资产交付状态报告\n生成时间：${new Date().toLocaleString('zh-CN')}\n\n---\n\n`;
+
+  products.forEach(p => {
+    const done = p.tasks.filter(t => t.completed).length;
+    const total = p.tasks.length;
+    const pct = Math.round(done / total * 100);
+    md += `## ${p.name}  \`${pct}%\`\n\n`;
+
+    CATEGORIES.forEach(cat => {
+      const catTasks = p.tasks.filter(t => t.catId === cat.id);
+      const catDone = catTasks.filter(t => t.completed).length;
+      md += `### ${cat.name} (${catDone}/${catTasks.length})\n`;
+      catTasks.forEach(pt => {
+        const schema = CATEGORIES.flatMap(c => c.tasks).find(t => t.id === pt.id);
+        const mark = pt.completed ? '✅' : '⬜';
+        md += `- ${mark} **${schema.title}**`;
+        if (pt.note) md += ` — _备注: ${pt.note}_`;
+        md += '\n';
+      });
+      md += '\n';
+    });
+
+    md += '---\n\n';
+  });
+
+  document.getElementById('exportContent').textContent = md;
+  document.getElementById('exportModal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('exportModal')) {
+    document.getElementById('exportModal').classList.remove('open');
+  }
+}
+
+function copyExport() {
+  const text = document.getElementById('exportContent').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✓ 已复制';
+    setTimeout(() => btn.textContent = '复制到剪贴板', 2000);
+  });
+}
+
+// ── RENDER ───────────────────────────────────────────────
+function render() {
+  const listEl = document.getElementById('productList');
+  const gPctEl = document.getElementById('gPct');
+  const gDoneEl = document.getElementById('gDone');
+
+  // Global stats
+  if (products.length > 0) {
+    const total = products.length * products[0].tasks.length;
+    const done  = products.reduce((a, p) => a + p.tasks.filter(t => t.completed).length, 0);
+    gPctEl.textContent  = Math.round(done / total * 100) + '%';
+    gDoneEl.textContent = products.length + ' 个';
+  } else {
+    gPctEl.textContent  = '—';
+    gDoneEl.textContent = '0 个';
+  }
+
+  if (products.length === 0) {
+    listEl.innerHTML = `<div class="empty">
+      <div class="empty-icon">📦</div>
+      <p>暂无产品。输入代号，开始建设 ROUNY 数字资产库。</p>
+    </div>`;
+    return;
+  }
+
+  // Total tasks per product
+  const TOTAL = CATEGORIES.reduce((a, c) => a + c.tasks.length, 0); // 13
+
+  listEl.innerHTML = products.map(p => {
+    const done = p.tasks.filter(t => t.completed).length;
+    const pct  = Math.round(done / TOTAL * 100);
+    const allDone = pct === 100;
+
+    // Category segment colors
+    const catSegs = CATEGORIES.map(cat => {
+      const cTasks = p.tasks.filter(t => t.catId === cat.id);
+      const cDone  = cTasks.filter(t => t.completed).length;
+      const cPct   = cDone / cTasks.length;
+      const seg_color = cPct === 1 ? cat.color : cPct > 0 ? 'rgba(160,190,205,0.5)' : 'var(--border)';
+      return `<div class="cat-seg" style="background:${seg_color}"></div>`;
+    }).join('');
+
+    // SVG ring
+    const R = 18, C = 22 * Math.PI * 2;
+    const offset = C - (pct / 100) * C;
+    const ringColor = allDone ? 'var(--pine)' : pct > 50 ? 'var(--orange)' : 'var(--sky)';
+
+    // Categories body
+    const catsHtml = CATEGORIES.map(cat => {
+      const catSchema = cat.tasks;
+      const cTasks = p.tasks.filter(t => t.catId === cat.id);
+      const cDone  = cTasks.filter(t => t.completed).length;
+
+      const tasksHtml = cTasks.map(pt => {
+        const schema = catSchema.find(s => s.id === pt.id);
+        return `
+          <div class="task-item ${pt.completed ? 'done' : ''}">
+            <div class="task-check ${pt.completed ? 'checked' : ''}"
+                 onclick="toggleTask(${p.id}, '${pt.id}')"></div>
+            <div class="task-info">
+              <div class="task-title ${pt.completed ? 'done' : ''}">
+                ${schema.title}
+                <span class="task-spec">${schema.spec}</span>
+              </div>
+              <div class="task-desc">${schema.desc}</div>
+              <div class="task-note-row">
+                <input class="task-note"
+                  placeholder="备注（可选）：如"待修改 SIDE 角度光源"…"
+                  value="${escHtml(pt.note || '')}"
+                  onchange="updateNote(${p.id}, '${pt.id}', this.value)"
+                  onclick="event.stopPropagation()"
+                />
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      return `<div class="cat-block">
+        <div class="cat-label">
+          <div class="cat-dot" style="background:${cat.color}"></div>
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-count">${cDone} / ${cTasks.length}</span>
+        </div>
+        <div class="tasks-grid">${tasksHtml}</div>
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="product-card ${allDone ? 'all-done' : ''}">
+        <div class="card-header" onclick="toggleExpand(${p.id})">
+          <div class="card-title-row">
+            <span class="card-name">${escHtml(p.name)}</span>
+            <span class="card-code">ROUNY_${escCode(p.name)}</span>
+          </div>
+          <div class="card-right">
+            ${allDone ? '<span class="badge-done">✓ DONE</span>' : ''}
+            <div class="progress-ring-wrap">
+              <svg width="44" height="44" viewBox="0 0 44 44">
+                <circle class="progress-ring-bg" cx="22" cy="22" r="${R}"/>
+                <circle class="progress-ring-fill"
+                  cx="22" cy="22" r="${R}"
+                  stroke="${ringColor}"
+                  stroke-dasharray="${C.toFixed(1)}"
+                  stroke-dashoffset="${offset.toFixed(1)}"/>
+              </svg>
+              <span class="progress-ring-text">${pct}%</span>
+            </div>
+            <button class="delete-btn" onclick="event.stopPropagation(); deleteProduct(${p.id})">移除</button>
+            <span class="chevron ${p.expanded ? 'open' : ''}">▼</span>
+          </div>
+        </div>
+        <div class="cat-bar">${catSegs}</div>
+        <div class="card-body ${p.expanded ? 'open' : ''}">
+          ${catsHtml}
+          <div class="card-footer">
+            <span class="added-date">入库时间：${p.addedAt || '—'}</span>
+            <button class="btn btn-sm" onclick="exportSingle(${p.id})">导出此产品报告 ↗</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function exportSingle(pid) {
+  const p = products.find(x => x.id === pid);
+  const done = p.tasks.filter(t => t.completed).length;
+  const pct  = Math.round(done / p.tasks.length * 100);
+  let md = `# ${p.name} — 数字资产交付报告\n完成度：${pct}%  |  生成：${new Date().toLocaleString('zh-CN')}\n\n`;
+
+  CATEGORIES.forEach(cat => {
+    const cTasks = p.tasks.filter(t => t.catId === cat.id);
+    const cDone  = cTasks.filter(t => t.completed).length;
+    md += `## ${cat.name} (${cDone}/${cTasks.length})\n`;
+    cTasks.forEach(pt => {
+      const schema = CATEGORIES.flatMap(c => c.tasks).find(t => t.id === pt.id);
+      md += `- ${pt.completed ? '✅' : '⬜'} **${schema.title}**`;
+      if (pt.note) md += ` — _${pt.note}_`;
+      md += '\n';
+    });
+    md += '\n';
+  });
+
+  document.getElementById('exportContent').textContent = md;
+  document.getElementById('exportModal').classList.add('open');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escCode(name) {
+  return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toUpperCase().slice(0, 20);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement === document.getElementById('newName')) addProduct();
+  if (e.key === 'Escape') closeModal();
+});
+
+render();
+</script>
+</body>
+</html>
