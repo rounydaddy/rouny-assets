@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REBIRTH-ALI · ROUNY 数字品牌大脑计划</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════
+   ROOT & RESET
+════════════════════════════════════════════ */
+:root {
+  --navy:   #1C3454;
+  --navy2:  #243f65;
+  --navy3:  #0d1e31;
+  --pine:   #5F8575;
+  --pine2:  #4a6b5c;
+  --sky:    #A0BECD;
+  --orange: #EB974E;
+  --orange2:#c97a35;
+  --warm:   #E6E1DC;
+  --cream:  #F5F1EB;
+  --white:  #FFFFFF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--navy3);
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════════════════════
+   SIDE NAV DOTS
+════════════════════════════════════════════ */
+.sidenav {
+  position: fixed; right: 28px; top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px;
+  z-index: 999;
+}
+.sidenav a {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: all 0.3s;
+  cursor: pointer; text-decoration: none;
+}
+.sidenav a.active,
+.sidenav a:hover {
+  background: var(--orange);
+  transform: scale(1.4);
+}
+
+/* ════════════════════════════════════════════
+   SECTION SHELL
+════════════════════════════════════════════ */
+.slide {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 80px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════════
+   ANIMATED GRID BACKGROUND
+════════════════════════════════════════════ */
+.grid-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(160,190,205,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(160,190,205,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ════════════════════════════════════════════
+   SLIDE 1 · HERO
+════════════════════════════════════════════ */
+#s1 {
+  background: var(--navy3);
+  flex-direction: column;
+  text-align: center;
+}
+
+.hero-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 3px;
+  color: var(--orange);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(48px, 8vw, 100px);
+  line-height: 1.0;
+  color: var(--white);
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+
+.hero-title em {
+  color: var(--orange);
+  font-style: italic;
+}
+
+.hero-sub {
+  margin-top: 28px;
+  font-size: 16px; font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  max-width: 520px;
+  line-height: 1.8;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+
+.hero-code {
+  margin-top: 40px;
+  display: inline-flex; align-items: center; gap: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 40px;
+  padding: 10px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; color: var(--sky);
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.hero-code .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--pine);
+  animation: pulse 2s infinite;
+}
+
+.scroll-hint {
+  position: absolute; bottom: 32px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,0.3); letter-spacing: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: fadeIn 1.5s 1.2s forwards; opacity: 0;
+}
+.scroll-hint::after {
+  content: '';
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+  animation: scrollLine 2s 1.5s infinite;
+}
+
+/* ════════════════════════════════════════════
+   SLIDE 2 · WHY
+════════════════════════════════════════════ */
+#s2 { background: var(--navy); }
+
+.why-inner {
+  max-width: 1000px; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+  align-items: center;
+}
+
+.section-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 3px;
+  color: var(--orange); text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.15;
+  color: var(--white);
+  margin-bottom: 24px;
+}
+.section-title span { color: var(--orange); }
+
+.body-text {
+  font-size: 15px; font-weight: 300;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.85;
+}
+
+.why-cards { display: flex; flex-direction: column; gap: 16px; }
+
+.why-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 20px 24px;
+  border-left: 3px solid;
+  transition: transform 0.3s;
+}
+.why-card:hover { transform: translateX(6px); }
+.why-card.c1 { border-left-color: rgba(255,255,255,0.2); }
+.why-card.c2 { border-left-color: var(--sky); }
+.why-card.c3 { border-left-color: var(--orange); }
+
+.wc-label {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--sky); margin-bottom: 8px;
+}
+.wc-text { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+.wc-text b { color: var(--white); }
+
+/* ════════════════════════════════════════════
+   SLIDE 3 · ROLES
+════════════════════════════════════════════ */
+#s3 { background: var(--navy3); flex-direction: column; }
+
+.roles-header { text-align: center; margin-bottom: 60px; max-width: 600px; }
+
+.roles-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 32px; max-width: 1000px; width: 100%;
+}
+
+.role-card {
+  border-radius: 16px; padding: 36px;
+  position: relative; overflow: hidden;
+  transition: transform 0.4s;
+}
+.role-card:hover { transform: translateY(-6px); }
+
+.role-card.sj {
+  background: linear-gradient(135deg, #1a3a2a 0%, #0f2a1e 100%);
+  border: 1px solid rgba(95,133,117,0.3);
+}
+.role-card.xs {
+  background: linear-gradient(135deg, #1a2c3d 0%, #0d1e2e 100%);
+  border: 1px solid rgba(160,190,205,0.3);
+}
+
+.role-glow {
+  position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px; border-radius: 50%;
+  filter: blur(60px); opacity: 0.25;
+}
+.role-card.sj .role-glow { background: var(--pine); }
+.role-card.xs .role-glow { background: var(--sky); }
+
+.role-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 5px 12px; border-radius: 20px; margin-bottom: 20px;
+}
+.role-card.sj .role-tag { background: rgba(95,133,117,0.2); color: var(--pine); }
+.role-card.xs .role-tag { background: rgba(160,190,205,0.2); color: var(--sky); }
+
+.role-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px; margin-bottom: 6px;
+}
+.role-title {
+  font-size: 12px; color: rgba(255,255,255,0.45);
+  margin-bottom: 28px;
+}
+
+.role-duties { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.role-duty {
+  display: flex; gap: 14px; align-items: flex-start;
+  font-size: 13px; color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+}
+.duty-num {
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: rgba(255,255,255,0.25); flex-shrink: 0; margin-top: 2px;
+}
+.role-duty b { color: var(--white); }
+
+.role-goal {
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  font-size: 12px; font-style: italic;
+  color: rgba(255,255,255,0.4);
+}
+.role-card.sj .role-goal { color: rgba(95,133,117,0.8); }
+.role-card.xs .role-goal { color: rgba(160,190,205,0.8); }
+
+/* ════════════════════════════════════════════
+   SLIDE 4 · ROADMAP
+════════════════════════════════════════════ */
+#s4 { background: var(--navy); flex-direction: column; }
+
+.roadmap-wrap { max-width: 1000px; width: 100%; }
+
+.phases {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 20px; margin-top: 50px;
+  position: relative;
+}
+
+.phases::before {
+  content: '';
+  position: absolute; top: 36px; left: 5%;
+  width: 90%; height: 2px;
+  background: linear-gradient(to right, var(--pine), var(--sky), var(--orange), var(--pine));
+  z-index: 0;
+}
+
+.phase {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 24px;
+  position: relative; z-index: 1;
+  transition: all 0.3s;
+}
+.phase:hover {
+  background: rgba(255,255,255,0.07);
+  transform: translateY(-4px);
+}
+
+.phase-node {
+  width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px; margin-bottom: 20px;
+  position: relative; z-index: 2;
+}
+.ph1 .phase-node { background: rgba(95,133,117,0.2); color: var(--pine); border: 2px solid var(--pine); }
+.ph2 .phase-node { background: rgba(160,190,205,0.2); color: var(--sky); border: 2px solid var(--sky); }
+.ph3 .phase-node { background: rgba(235,151,78,0.2); color: var(--orange); border: 2px solid var(--orange); }
+.ph4 .phase-node { background: rgba(95,133,117,0.15); color: var(--pine); border: 2px solid var(--pine); }
+
+.phase-week {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 10px;
+  color: rgba(255,255,255,0.3);
+}
+
+.phase-name {
+  font-size: 17px; font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.phase-goal {
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  margin-bottom: 14px; line-height: 1.6;
+}
+
+.phase-actions { display: flex; flex-direction: column; gap: 8px; }
+.pa {
+  font-size: 12px; color: rgba(255,255,255,0.65);
+  display: flex; gap: 8px; align-items: flex-start;
+  line-height: 1.5;
+}
+.pa::before { content: '—'; color: rgba(255,255,255,0.2); flex-shrink: 0; }
+
+/* Time estimates row */
+.time-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px; margin-top: 36px;
+}
+.time-cell {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 20px 24px;
+  display: flex; align-items: center; gap: 20px;
+}
+.time-big {
+  font-family: 'DM Serif Display', serif;
+  font-size: 40px; color: var(--orange);
+  line-height: 1;
+}
+.time-unit { font-size: 11px; color: rgba(255,255,255,0.4); }
+.time-desc { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+/* ════════════════════════════════════════════
+   SLIDE 5 · SOP
+════════════════════════════════════════════ */
+#s5 { background: var(--navy3); }
+
+.sop-inner { max-width: 1000px; width: 100%; }
+
+.sop-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; margin-top: 44px;
+}
+
+.sop-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px; padding: 28px;
+}
+
+.sop-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 52px; color: rgba(255,255,255,0.05);
+  line-height: 1; margin-bottom: 12px;
+}
+
+.sop-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--sky); margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.sop-body {
+  font-size: 13px; color: rgba(255,255,255,0.6);
+  line-height: 1.8;
+}
+
+.code-block {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px; padding: 14px 16px;
+  color: var(--orange);
+  margin-top: 12px;
+  line-height: 2;
+}
+
+/* ════════════════════════════════════════════
+   SLIDE 6 · KPI
+════════════════════════════════════════════ */
+#s6 { background: var(--navy); flex-direction: column; }
+
+.kpi-inner { max-width: 960px; width: 100%; }
+
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 50px;
+}
+
+.kpi-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 32px 28px;
+  text-align: center;
+  transition: all 0.3s;
+}
+.kpi-card:hover {
+  background: rgba(255,255,255,0.07);
+  transform: translateY(-5px);
+}
+
+.kpi-icon { font-size: 28px; margin-bottom: 16px; }
+
+.kpi-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 56px; line-height: 1;
+  margin-bottom: 6px;
+}
+.kpi-card:nth-child(1) .kpi-num { color: var(--pine); }
+.kpi-card:nth-child(2) .kpi-num { color: var(--orange); }
+.kpi-card:nth-child(3) .kpi-num { color: var(--sky); }
+
+.kpi-label {
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.3); margin-bottom: 16px;
+}
+
+.kpi-desc {
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  line-height: 1.7;
+}
+
+/* ════════════════════════════════════════════
+   SLIDE 7 · CLOSING
+════════════════════════════════════════════ */
+#s7 {
+  background: radial-gradient(ellipse at 30% 50%, rgba(95,133,117,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(28,52,84,0.8) 0%, var(--navy3) 70%),
+              var(--navy3);
+  flex-direction: column; text-align: center;
+}
+
+.closing-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(40px, 6vw, 80px);
+  line-height: 1.1; max-width: 720px;
+  margin-bottom: 30px;
+}
+.closing-title em { color: var(--orange); font-style: italic; }
+
+.closing-body {
+  font-size: 16px; font-weight: 300;
+  color: rgba(255,255,255,0.5);
+  max-width: 520px; line-height: 1.9;
+  margin-bottom: 48px;
+}
+
+.closing-sig {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.sig-from {
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: 2px; color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+.sig-name { font-size: 16px; font-weight: 600; color: var(--orange); }
+.sig-title { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+.brand-mark {
+  margin-top: 40px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 6px; text-transform: uppercase;
+  color: rgba(255,255,255,0.15);
+}
+
+/* ════════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+@keyframes scrollLine {
+  0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+  50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0; transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+.reveal-d4 { transition-delay: 0.4s; }
+.reveal-d5 { transition-delay: 0.5s; }
+
+/* Divider line */
+.divider {
+  width: 48px; height: 2px;
+  background: var(--orange);
+  margin: 20px 0;
+}
+.divider.center { margin: 20px auto; }
+
+/* Milestone bar (bottom of roadmap slide) */
+.milestone-bar {
+  margin-top: 40px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 16px 24px;
+  display: flex; align-items: center; gap: 0;
+}
+.ms-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; text-align: center;
+  position: relative;
+}
+.ms-item:not(:last-child)::after {
+  content: '→';
+  position: absolute; right: -12px; top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,0.2); font-size: 14px;
+}
+.ms-t { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--orange); }
+.ms-l { font-size: 12px; font-weight: 600; }
+.ms-d { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+/* ════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .slide { padding: 60px 24px; }
+  .why-inner, .roles-grid, .sop-grid, .kpi-grid { grid-template-columns: 1fr; }
+  .phases { grid-template-columns: 1fr 1fr; }
+  .phases::before { display: none; }
+  .time-row { grid-template-columns: 1fr; }
+  .sidenav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDE NAVIGATION -->
+<nav class="sidenav" id="sidenav">
+  <a href="#s1" class="active"></a>
+  <a href="#s2"></a>
+  <a href="#s3"></a>
+  <a href="#s4"></a>
+  <a href="#s5"></a>
+  <a href="#s6"></a>
+  <a href="#s7"></a>
+</nav>
+
+<!-- ══ S1 · HERO ══════════════════════════════ -->
+<section class="slide" id="s1">
+  <div class="grid-bg"></div>
+  <div style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center;">
+    <div class="hero-tag">Project REBIRTH-ALI · ROUNY Brand Intelligence</div>
+    <h1 class="hero-title">
+      重生<br>
+      <em>数字阿力老师</em><br>打造计划
+    </h1>
+    <p class="hero-sub">通过视觉语意化与物理数据建模，将阿力老师的审美逻辑转化为 AI 可执行的品牌准则，构建永不疲劳的数字品牌合伙人。</p>
+    <div class="hero-code">
+      <span class="dot"></span>
+      REBIRTH-ALI · T+45天 · 20款产品全覆盖
+    </div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- ══ S2 · WHY ══════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="grid-bg"></div>
+  <div class="why-inner" style="position:relative; z-index:1;">
+    <div class="reveal">
+      <div class="section-eyebrow">为什么现在</div>
+      <h2 class="section-title">AI 不缺数据，<br>缺的是<span>逻辑</span></h2>
+      <div class="divider"></div>
+      <p class="body-text">
+        我们拥有精美的 VI 手册和产品资料，但 AI 只能看到像素——它不懂"外刚内柔"，更不懂"北欧轻奢"。<br><br>
+        这个计划要做的，不是整理文件，而是将设计师的直觉克隆成 AI 可以执行的准则。
+      </p>
+    </div>
+    <div class="why-cards">
+      <div class="why-card c1 reveal reveal-d2">
+        <div class="wc-label">现状</div>
+        <div class="wc-text">AI 面对一张产品图，<b>只能描述颜色，无法判断调性。</b>它不知道这个深海蓝是否偏冷，也不知道这条拉丝方向是否符合北欧工艺感。</div>
+      </div>
+      <div class="why-card c2 reveal reveal-d3">
+        <div class="wc-label">路径</div>
+        <div class="wc-text">通过 <b>视觉语意化（Visual Semanticization）</b>，将设计师直觉转译为结构化规则，让 AI 习得「阿力老师式审美」。</div>
+      </div>
+      <div class="why-card c3 reveal reveal-d4">
+        <div class="wc-label">目标</div>
+        <div class="wc-text">AI 在看到一张新图时，<b>瞬间判断出「这是否符合阿力老师的标准」</b>，并给出改进建议。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ S3 · ROLES ══════════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="grid-bg"></div>
+  <div class="roles-header reveal" style="position:relative; z-index:1;">
+    <div class="section-eyebrow">核心团队</div>
+    <h2 class="section-title" style="text-align:center;">两位「灵魂上传者」</h2>
+  </div>
+  <div class="roles-grid" style="position:relative; z-index:1;">
+
+    <!-- 少杰 -->
+    <div class="role-card sj reveal reveal-d2">
+      <div class="role-glow"></div>
+      <div class="role-tag">🎨 视觉灵魂官</div>
+      <div class="role-name">少杰</div>
+      <div class="role-title">首席平面设计师 · 主美</div>
+      <ul class="role-duties">
+        <li class="role-duty">
+          <span class="duty-num">01</span>
+          <span><b>视觉解码</b> — 将 VI 手册中的色彩、构图、字体转化为文字逻辑文档，让设计原则可被机器学习。</span>
+        </li>
+        <li class="role-duty">
+          <span class="duty-num">02</span>
+          <span><b>语意建模</b> — 为 20 款产品编写「视觉 DNA 描述」与 Master Prompts，明确拍摄光影、家具调性、人物姿态。</span>
+        </li>
+        <li class="role-duty">
+          <span class="duty-num">03</span>
+          <span><b>审美审计</b> — 设定「视觉红线（Negative Constraints）」，划定禁止区，对 AI 产出进行最终调性核准。</span>
+        </li>
+      </ul>
+      <div class="role-goal">目标：将自己的设计大脑「开源」给 AI，永久延伸。</div>
+    </div>
+
+    <!-- 小桑 -->
+    <div class="role-card xs reveal reveal-d3">
+      <div class="role-glow"></div>
+      <div class="role-tag">⚙️ 数字孪生官</div>
+      <div class="role-name">小桑</div>
+      <div class="role-title">3D / 渲染工程师</div>
+      <ul class="role-duties">
+        <li class="role-duty">
+          <span class="duty-num">01</span>
+          <span><b>高精建模</b> — 输出 4K 级「5+1」视角渲染图，每个材质交界处清晰可辨，金属拉丝方向精准捕捉。</span>
+        </li>
+        <li class="role-duty">
+          <span class="duty-num">02</span>
+          <span><b>CMF 数据化</b> — 编写结构化 Markdown，将规格、材质、Pantone 色号转化为 AI 可读数据。</span>
+        </li>
+        <li class="role-duty">
+          <span class="duty-num">03</span>
+          <span><b>工程标准化</b> — 包装六面图、内托描述、装箱数据完整归档，支撑 AI 生成开箱叙事。</span>
+        </li>
+      </ul>
+      <div class="role-goal">目标：为 AI 提供 100% 还原真实的「视网膜」级素材。</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ S4 · ROADMAP ══════════════════════════════ -->
+<section class="slide" id="s4" style="flex-direction:column;">
+  <div class="grid-bg"></div>
+  <div class="roadmap-wrap" style="position:relative; z-index:1;">
+    <div class="reveal">
+      <div class="section-eyebrow">执行路线图</div>
+      <h2 class="section-title">四个阶段，<span style="color:var(--orange);">T+45 天上线</span></h2>
+    </div>
+
+    <div class="phases">
+      <div class="phase ph1 reveal reveal-d1">
+        <div class="phase-node">一</div>
+        <div class="phase-week">Week 1</div>
+        <div class="phase-name">样板建立</div>
+        <div class="phase-goal">以 Thermis（牛排慢煮机）为样本，跑通全套数字化流程并压力测试。</div>
+        <div class="phase-actions">
+          <div class="pa">小桑提交 CMF 完整包</div>
+          <div class="pa">少杰提交视觉语意描述词</div>
+          <div class="pa">导入 AI 进行识别验证</div>
+        </div>
+      </div>
+      <div class="phase ph2 reveal reveal-d2">
+        <div class="phase-node">二</div>
+        <div class="phase-week">Week 2–5</div>
+        <div class="phase-name">资产铺设</div>
+        <div class="phase-goal">两人协同，批量完成剩余 19 款产品数字化入库。</div>
+        <div class="phase-actions">
+          <div class="pa">使用资产追踪器 V2.0 管理进度</div>
+          <div class="pa">每款独立四级目录归档</div>
+          <div class="pa">严格命名协议执行</div>
+        </div>
+      </div>
+      <div class="phase ph3 reveal reveal-d3">
+        <div class="phase-node">三</div>
+        <div class="phase-week">Week 6</div>
+        <div class="phase-name">大脑上线</div>
+        <div class="phase-goal">集成所有资产至 NotebookLM，生成「数字阿力老师」Gems 助理。</div>
+        <div class="phase-actions">
+          <div class="pa">全员内测与调优</div>
+          <div class="pa">模拟欧美 / 韩国市场输出</div>
+          <div class="pa">生成指令微调</div>
+        </div>
+      </div>
+      <div class="phase ph4 reveal reveal-d4">
+        <div class="phase-node">四</div>
+        <div class="phase-week">Week 7</div>
+        <div class="phase-name">验收上线</div>
+        <div class="phase-goal">AI 助理现场盲测，对图片色偏与质感识别率达标则正式启用。</div>
+        <div class="phase-actions">
+          <div class="pa">100% 细节图片识别验收</div>
+          <div class="pa">文案调性对齐测评</div>
+          <div class="pa">数字阿力老师正式启用</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="milestone-bar reveal reveal-d5">
+      <div class="ms-item">
+        <div class="ms-t">启动</div>
+        <div class="ms-l">今天</div>
+        <div class="ms-d">分发工具 · 明确标准</div>
+      </div>
+      <div class="ms-item">
+        <div class="ms-t">T+7天</div>
+        <div class="ms-l">首样入库</div>
+        <div class="ms-d">Thermis 全细节验证</div>
+      </div>
+      <div class="ms-item">
+        <div class="ms-t">T+21天</div>
+        <div class="ms-l">半程节点</div>
+        <div class="ms-d">10款核心产品完成</div>
+      </div>
+      <div class="ms-item">
+        <div class="ms-t">T+45天</div>
+        <div class="ms-l">重生完成</div>
+        <div class="ms-d">数字阿力老师上线</div>
+      </div>
+    </div>
+
+    <div class="time-row reveal">
+      <div class="time-cell">
+        <div>
+          <div class="time-big">2</div>
+          <div class="time-unit">天 / 样板期</div>
+        </div>
+        <div>
+          <div class="time-desc">Thermis 打样全套流程验证，包含反复测试与标准迭代</div>
+        </div>
+      </div>
+      <div class="time-cell">
+        <div>
+          <div class="time-big">1.5</div>
+          <div class="time-unit">天 / 单款</div>
+        </div>
+        <div>
+          <div class="time-desc">小桑渲染 + 少杰语意化同步推进，共 19 款批量铺设</div>
+        </div>
+      </div>
+      <div class="time-cell">
+        <div>
+          <div class="time-big">20</div>
+          <div class="time-unit">款 · 全覆盖</div>
+        </div>
+        <div>
+          <div class="time-desc">ROUNY 现有产品线全量数字化，构建品牌基础资产库</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ S5 · SOP ══════════════════════════════ -->
+<section class="slide" id="s5">
+  <div class="grid-bg"></div>
+  <div class="sop-inner" style="position:relative; z-index:1;">
+    <div class="reveal">
+      <div class="section-eyebrow">交付标准 SOP</div>
+      <h2 class="section-title">让每一个细节都<span style="color:var(--orange);">有章可循</span></h2>
+    </div>
+    <div class="sop-grid">
+      <div class="sop-card reveal reveal-d1">
+        <div class="sop-num">01</div>
+        <div class="sop-title">存储规范</div>
+        <div class="sop-body">
+          统一使用 Google Drive 根目录
+          <div class="code-block">
+            ROUNY_Global_Digital_Assets_V1/<br>
+            └── [产品代号]/<br>
+            &nbsp;&nbsp;&nbsp;├── 01_Renders/<br>
+            &nbsp;&nbsp;&nbsp;├── 02_Photos/<br>
+            &nbsp;&nbsp;&nbsp;├── 03_Engineering/<br>
+            &nbsp;&nbsp;&nbsp;└── 04_Source/
+          </div>
+        </div>
+      </div>
+      <div class="sop-card reveal reveal-d2">
+        <div class="sop-num">02</div>
+        <div class="sop-title">命名协议</div>
+        <div class="sop-body">
+          严禁中文及无标题文件，全程英文命名
+          <div class="code-block">
+            渲染图：ROUNY_[代号]_R_[视角]_v1<br>
+            实拍图：ROUNY_[代号]_P_[视角]_[日期]<br>
+            CMF文档：ROUNY_[代号]_CMF_v1.md<br>
+            包装图：ROUNY_[代号]_PKG_6SIDE_v1.pdf
+          </div>
+        </div>
+      </div>
+      <div class="sop-card reveal reveal-d3">
+        <div class="sop-num">03</div>
+        <div class="sop-title">渲染技术标准</div>
+        <div class="sop-body">
+          分辨率不低于 4K (3840×2160)，背景纯白 #FFFFFF，保留极淡 AO 自然遮蔽。品牌色深海蓝 #1C3454 在不同光照下须保持色相一致，提交前进行色彩比对确认。
+        </div>
+      </div>
+      <div class="sop-card reveal reveal-d4">
+        <div class="sop-num">04</div>
+        <div class="sop-title">CMF 文本标准</div>
+        <div class="sop-body">
+          每个结构件必须标注：材质属性 / 处理工艺 / Pantone 色号 / 品牌语意标签（外刚 / 内柔）。所有逻辑文件必须提供 Google Docs 或 Markdown .md 格式，确保 AI 深度检索。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ S6 · KPI ══════════════════════════════ -->
+<section class="slide" id="s6" style="flex-direction:column;">
+  <div class="grid-bg"></div>
+  <div class="kpi-inner" style="position:relative; z-index:1;">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-eyebrow">核心考核指标</div>
+      <h2 class="section-title">数字阿力老师的<span style="color:var(--orange);">三把尺</span></h2>
+      <div class="divider center"></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card reveal reveal-d1">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-num">95<span style="font-size:24px;">%</span></div>
+        <div class="kpi-label">视觉一致性</div>
+        <div class="kpi-desc">AI 助理在盲测中对渲染图的色偏识别、材质质感判断准确率必须达到 95% 以上。</div>
+      </div>
+      <div class="kpi-card reveal reveal-d2">
+        <div class="kpi-icon">✍️</div>
+        <div class="kpi-num">100<span style="font-size:24px;">%</span></div>
+        <div class="kpi-label">叙事对齐度</div>
+        <div class="kpi-desc">AI 产出的所有文案必须能自动结合「Rouny Daddy」人设与产品物理材质细节进行叙事。</div>
+      </div>
+      <div class="kpi-card reveal reveal-d3">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-num">20<span style="font-size:24px;">款</span></div>
+        <div class="kpi-label">资产完整度</div>
+        <div class="kpi-desc">20 款产品在 Google Drive 中的数字化文件夹 100% 四级目录达标，无缺项。</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:40px;" class="reveal reveal-d4">
+      <p style="font-size:13px; color:rgba(255,255,255,0.3); font-style:italic; max-width:600px; margin:0 auto;">
+        「AI 视觉监考能力上线后，任何一张跑偏的广告图，AI 将在 3 秒内告诉你：<br>这颜色不是我们的深海蓝，偏冷了 5%，不符合品牌调性。」
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ S7 · CLOSING ══════════════════════════════ -->
+<section class="slide" id="s7">
+  <div class="grid-bg"></div>
+  <div style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center;">
+    <h2 class="closing-title reveal">
+      小桑、少杰，<br>让我们正式<em>启动</em>。
+    </h2>
+    <p class="closing-body reveal reveal-d2">
+      数字阿力老师不只是一个工具，他是 ROUNY 品牌生命力的延伸。<br>
+      当品牌资产 100% 数字化，设计逻辑永久存续，ROUNY 将真正拥有一个不会疲劳、不会跑偏的品牌大脑。
+    </p>
+    <div class="closing-sig reveal reveal-d3">
+      <div class="sig-from">本计划书由</div>
+      <div class="sig-name">ROUNY 首席品牌执行战略官</div>
+      <div class="sig-title">Co-Founder & Chief Brand Strategist · 即刻生效</div>
+    </div>
+    <div class="brand-mark reveal reveal-d4">ROUNY · AROUND YOU</div>
+  </div>
+</section>
+
+<script>
+// ── SCROLL REVEAL ─────────────────────────────
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.15 });
+reveals.forEach(r => observer.observe(r));
+
+// ── SIDE NAV ACTIVE ───────────────────────────
+const slides  = document.querySelectorAll('.slide');
+const navDots = document.querySelectorAll('.sidenav a');
+
+const slideObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.intersectionRatio > 0.4) {
+      const idx = Array.from(slides).indexOf(e.target);
+      navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.4 });
+
+slides.forEach(s => slideObs.observe(s));
+
+// ── SMOOTH SCROLL ON DOT CLICK ────────────────
+navDots.forEach((dot, i) => {
+  dot.addEventListener('click', e => {
+    e.preventDefault();
+    slides[i].scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ── KPI COUNTER ANIMATION ─────────────────────
+function animateCounter(el, target, duration = 1200) {
+  const start = performance.now();
+  const isFloat = String(target).includes('.');
+  const update = now => {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    const val = target * ease;
+    el.textContent = isFloat ? val.toFixed(1) : Math.round(val);
+    if (t < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+const kpiNums = document.querySelectorAll('.kpi-num');
+const targets = [95, 100, 20];
+let countersRun = false;
+
+const kpiObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !countersRun) {
+      countersRun = true;
+      kpiNums.forEach((el, i) => {
+        const orig = el.innerHTML;
+        const suffix = orig.match(/<span.*<\/span>/)?.[0] || '';
+        el.innerHTML = '0' + suffix;
+        const textNode = el.firstChild;
+        animateCounter({ textContent: '' }, targets[i], 1400);
+        let s = performance.now();
+        const upd = now => {
+          const t = Math.min((now - s) / 1400, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          textNode.textContent = Math.round(targets[i] * ease);
+          if (t < 1) requestAnimationFrame(upd);
+        };
+        requestAnimationFrame(upd);
+      });
+    }
+  });
+}, { threshold: 0.5 });
+
+if (kpiNums[0]) kpiObs.observe(kpiNums[0].closest('.kpi-inner') || document.querySelector('#s6'));
+</script>
+</body>
+</html>
